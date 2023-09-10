@@ -1,11 +1,6 @@
 import Foundation
 
 /**
- An asynchronous function for an `AsyncScheduler`
- */
-public typealias AsyncFunction = () async throws -> Void
-
-/**
  The type to provide asynchronous task scheduling.
 
  In Swift, normal `Task`s can be used:
@@ -24,12 +19,12 @@ public protocol AsyncScheduler {
      Schedule an async operation.
      - Parameter schedule: The asynchronous function to run
      */
-    func schedule(asyncJob: @escaping AsyncFunction)
+    func schedule(asyncJob: @escaping @Sendable () async throws -> Void)
 }
 
 struct AsyncTaskScheduler: AsyncScheduler {
 
-    func schedule(asyncJob: @escaping AsyncFunction) {
+    func schedule(asyncJob: @escaping @Sendable () async throws -> Void) {
         Task {
             try await asyncJob()
         }
