@@ -36,8 +36,8 @@ struct MetricLogHandler: LogHandler {
             case .message:
                 text = message.description
             }
-            Task {
-                try? await metric.update(text)
+            scheduler.schedule {
+                try await metric.update(text)
             }
     }
 
@@ -51,9 +51,12 @@ struct MetricLogHandler: LogHandler {
 
     private let format: LogOutputFormat
 
-    init(label: String, metric: Metric<String>, format: LogOutputFormat) {
+    private let scheduler: AsyncScheduler
+
+    init(label: String, metric: Metric<String>, format: LogOutputFormat, scheduler: AsyncScheduler) {
         self.label = label
         self.metric = metric
         self.format = format
+        self.scheduler = scheduler
     }
 }

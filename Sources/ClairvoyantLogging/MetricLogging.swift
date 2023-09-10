@@ -24,6 +24,24 @@ public struct MetricLogging {
     public var loggingFormat: LogOutputFormat
 
     /**
+     The object to provide async task scheduling.
+
+     The logging of data is done using async operations on `Metric`s, but the functions on `LogHandler` are synchronous.
+     The async scheduler provides the means to run the asynchronous metric updates.
+
+     By default, Swift `Task`s are used:
+
+     ```
+     Task {
+         try await asyncOperation() // Updates the metric
+     }
+     ```
+
+     Other contexts, such as when using `SwiftNIO` event loops, may need a different type of scheduling.
+     */
+    public var asyncScheduler: AsyncScheduler = AsyncTaskScheduler()
+
+    /**
      Wrap an observer for use as a logging backend.
      - Parameter observer: The observer to make metrics for each logger.
      - Parameter loggingFormat: The format to use for each log entry.
@@ -45,6 +63,6 @@ public struct MetricLogging {
      */
     public func backend(label: String) -> LogHandler {
         let metric: Metric<String> = observer.addMetric(id: label)
-        return MetricLogHandler(label: label, metric: metric, format: loggingFormat)
+        return MetricLogHandler(label: label, metric: metric, format: loggingFormat, scheduler: asyncScheduler)
     }
 }
