@@ -11,7 +11,7 @@ let package = Package(
             targets: ["ClairvoyantLogging"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/christophhagen/Clairvoyant", from: "0.9.2"),
+        .package(url: "https://github.com/christophhagen/Clairvoyant", from: "0.11.2"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0"),
 
     ],
