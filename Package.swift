@@ -11,7 +11,7 @@ let package = Package(
             targets: ["ClairvoyantLogging"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/christophhagen/Clairvoyant", from: "0.11.2"),
+        .package(url: "https://github.com/christophhagen/Clairvoyant", branch: "develop"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
 
@@ -25,6 +25,9 @@ let package = Package(
             ]),
         .testTarget(
             name: "ClairvoyantLoggingTests",
-            dependencies: ["ClairvoyantLogging"]),
+            dependencies: [
+                "ClairvoyantLogging",
+                .product(name: "MetricFileStorage", package: "Clairvoyant"),
+            ]),
     ]
 )

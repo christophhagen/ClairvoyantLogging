@@ -36,9 +36,8 @@ struct MetricLogHandler: LogHandler {
             case .message:
                 text = message.description
             }
-            scheduler.schedule {
-                try await metric.update(text)
-            }
+            // TODO: Handle error
+            _ = try? metric.update(text)
     }
 
     var metadata: Logger.Metadata = [:]

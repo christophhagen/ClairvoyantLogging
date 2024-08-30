@@ -10,7 +10,14 @@ public struct MetricLogging {
     /**
      The wrapped observer handling the metrics created for each logger.
      */
-    public let observer: MetricObserver
+    public let storage: MetricStorage
+
+    /**
+     The group to use when creating metrics.
+
+     Each metric will have the `label` of the logger as the `id`.
+     */
+    public let group: String
 
     /**
      The logging format to use when using the observer as a logging backend.
@@ -46,8 +53,9 @@ public struct MetricLogging {
      - Parameter observer: The observer to make metrics for each logger.
      - Parameter loggingFormat: The format to use for each log entry.
      */
-    public init(observer: MetricObserver, loggingFormat: LogOutputFormat = .basic) {
-        self.observer = observer
+    public init(storage: MetricStorage, group: String = "swift-log", loggingFormat: LogOutputFormat = .basic) {
+        self.storage = storage
+        self.group = group
         self.loggingFormat = loggingFormat
     }
 
@@ -62,7 +70,8 @@ public struct MetricLogging {
      - Parameter label: The label of the logger.
      */
     public func backend(label: String) -> LogHandler {
-        let metric: Metric<String> = observer.addMetric(id: label)
+        // TODO: Handle error
+        let metric: Metric<String> = try! storage.metric(id: label, group: group)
         return MetricLogHandler(label: label, metric: metric, format: loggingFormat, scheduler: asyncScheduler)
     }
 }

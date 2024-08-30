@@ -2,6 +2,7 @@ import XCTest
 import Clairvoyant
 import ClairvoyantLogging
 import Logging
+import MetricFileStorage
 
 final class ClairvoyantLoggingTests: XCTestCase {
 
@@ -19,12 +20,11 @@ final class ClairvoyantLoggingTests: XCTestCase {
     }
 
     func testBootstrap() async throws {
-        let observer = MetricObserver(
-            logFolder: logFolder,
-            logMetricId: "observer.log",
-            encoder: JSONEncoder(),
-            decoder: JSONDecoder())
-        let logging = MetricLogging(observer: observer)
+        let storage = try MultiFileStorage(
+            folder: logFolder,
+            encoderCreator: JSONEncoder.init,
+            decoderCreator: JSONDecoder.init)
+        let logging = MetricLogging(storage: storage)
         LoggingSystem.bootstrap(logging.backend)
 
         let entry = "It works"
@@ -32,19 +32,16 @@ final class ClairvoyantLoggingTests: XCTestCase {
         let logger = Logger(label: "log.something")
         logger.info(.init(stringLiteral: entry))
 
-        guard let metric = observer.getMetric(id: logger.label, type: String.self) else {
-            XCTFail("No valid metric for logger")
-            return
-        }
+        let metric = try storage.metric(id: logger.label, group: logging.group, type: String.self)
 
         // Need to wait briefly here, since forwarding the log entry to the metric is done in an async context,
         // which would otherwise happen after trying to access the log data
         sleep(1)
 
-        let last = await metric.lastValue()
+        let last = try metric.currentValue()
         XCTAssertEqual(last?.value, result)
 
-        let history = await metric.fullHistory()
+        let history = try metric.history()
         XCTAssertEqual(history.count, 1)
         XCTAssertEqual(history.first?.value ?? "", result)
     }
