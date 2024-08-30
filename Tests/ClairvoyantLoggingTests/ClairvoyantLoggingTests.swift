@@ -33,11 +33,7 @@ final class ClairvoyantLoggingTests: XCTestCase {
         logger.info(.init(stringLiteral: entry))
 
         let metric = try storage.metric(id: logger.label, group: logging.group, type: String.self)
-
-        // Need to wait briefly here, since forwarding the log entry to the metric is done in an async context,
-        // which would otherwise happen after trying to access the log data
-        sleep(1)
-
+        
         let last = try metric.currentValue()
         XCTAssertEqual(last?.value, result)
 
