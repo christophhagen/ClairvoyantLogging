@@ -50,12 +50,9 @@ struct MetricLogHandler: LogHandler {
 
     private let format: LogOutputFormat
 
-    private let scheduler: AsyncScheduler
-
-    init(label: String, metric: Metric<String>, format: LogOutputFormat, scheduler: AsyncScheduler) {
+    init(label: String, metric: Metric<String>, format: LogOutputFormat) {
         self.label = label
         self.metric = metric
         self.format = format
-        self.scheduler = scheduler
     }
 }
